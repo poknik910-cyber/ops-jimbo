@@ -206,12 +206,15 @@ function renderError(m){
  $('#rt').onclick=boot;$('#rs').onclick=()=>{ls.del('oj_conn');conn=null;boot()};
 }
 function renderSetup(){
- app.innerHTML=`<main>${hero('Selamat datang! Telefon ini belum disambung.')}<div class="card"><h2>Import Fail Sambungan</h2><p style="color:var(--muted);line-height:1.55">Admin akan beri anda fail <b style="color:var(--text)">OPS-JIMBO-sambungan.ojs</b> (melalui WhatsApp, Telegram atau emel). Simpan fail itu dalam telefon, kemudian pilih di sini.</p><button class="btn primary block" id="imp">${I.dl} Pilih Fail Sambungan</button></div></main>${foot}`;
- $('#imp').onclick=()=>$('#ojs').click();
+ app.innerHTML=`<main>${hero('Selamat datang! Telefon ini belum disambung.')}<div class="card"><h2>Import Fail Sambungan</h2><p style="color:var(--muted);line-height:1.55">Admin akan beri anda fail <b style="color:var(--text)">OPS-JIMBO-sambungan.ojs</b> (melalui WhatsApp, Telegram atau emel). Simpan fail itu dalam telefon, kemudian pilih di sini.</p><button class="btn primary block" id="imp">${I.dl} Pilih Fail Sambungan</button><p class="sub" style="text-align:center">atau</p><label class="f">Tampal kod sambungan (dari WhatsApp)<textarea id="kod" rows="4" placeholder="Tekan lama di sini, pilih Tampal / Paste"></textarea></label><button class="btn gold block" id="kodok">Sambung dengan Kod</button></div></main>${foot}`;
+ $('#imp').onclick=()=>$('#ojs').click();$('#kodok').onclick=()=>importText($('#kod').value);
 }
 $('#ojs').onchange=async e=>{
  const f=e.target.files[0];e.target.value='';if(!f)return;
- let c=null;try{c=JSON.parse(decodeURIComponent(escape(atob((await f.text()).trim()))))}catch{}
+ importText(await f.text());
+};
+async function importText(txt){
+ let c=null;try{c=JSON.parse(decodeURIComponent(escape(atob(String(txt).replace(/\s+/g,'')))))}catch{}
  if(!c||c.app!=='OPSJIMBO3'||!c.refreshToken||!c.configId)return toast('Fail sambungan tidak sah.',true);
  delete c.app;conn=c;token={v:null,exp:0};
  try{await getConfig()}catch(err){conn=null;return toast(err.message,true)}
